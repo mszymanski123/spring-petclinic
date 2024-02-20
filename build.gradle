@@ -5,6 +5,7 @@ plugins {
   id 'org.graalvm.buildtools.native' version '0.9.28'
   id 'io.spring.javaformat' version '0.0.41'
   id "io.spring.nohttp" version "0.0.11"
+  id 'pl.allegro.tech.build.axion-release' version '1.15.1'
 }
 
 apply plugin: 'java'
@@ -13,7 +14,7 @@ apply plugin: 'io.spring.javaformat'
 
 gradle.startParameter.excludedTaskNames += [ "checkFormatAot", "checkFormatAotTest" ]
 
-group = 'org.springframework.samples'
+group = '2024.intership.wro'
 version = '3.2.0'
 sourceCompatibility = '17'
 
@@ -77,3 +78,19 @@ checkFormatAotTest.enabled = false
 
 formatAot.enabled = false
 formatAotTest.enabled = false
+
+task customTask(dependsOn: ['build', 'test']) {
+    doLast {
+        def testResultsPath = "${project.buildDir}/reports/tests/index.html"
+        
+        if (new File(testResultsPath).exists()) {
+            exec {
+                commandLine 'open', testResultsPath
+            }
+        } else {
+            println "Test results file not found at: $testResultsPath"
+        }
+    }
+}
+
+project.version = scmVersion.version
