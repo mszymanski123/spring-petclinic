@@ -1,11 +1,11 @@
 plugins {
-  id 'java'
-  id 'org.springframework.boot' version '3.2.0'
-  id 'io.spring.dependency-management' version '1.1.4'
-  id 'org.graalvm.buildtools.native' version '0.9.28'
-  id 'io.spring.javaformat' version '0.0.41'
-  id "io.spring.nohttp" version "0.0.11"
-  id 'pl.allegro.tech.build.axion-release' version '1.15.1'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.graalvm.buildtools.native' version '0.9.28'
+    id 'io.spring.javaformat' version '0.0.41'
+    id "io.spring.nohttp" version "0.0.11"
+    id 'pl.allegro.tech.build.axion-release' version '1.15.1'
 }
 
 apply plugin: 'java'
@@ -19,49 +19,54 @@ version = '3.2.0'
 sourceCompatibility = '17'
 
 repositories {
-  mavenCentral()
+    // Add your proxy repository URL here
+    maven {
+        url 'http://localhost:8081/repository/maven-central/'
+    }
+    // Add other repositories if needed
+    mavenCentral()
 }
 
 ext.webjarsFontawesomeVersion = "4.7.0"
 ext.webjarsBootstrapVersion = "5.3.2"
 
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-starter-cache'
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-  implementation 'org.springframework.boot:spring-boot-starter-web'
-  implementation 'org.springframework.boot:spring-boot-starter-validation'
-  implementation 'javax.cache:cache-api'
-  implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
-  runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
-  runtimeOnly "org.webjars.npm:bootstrap:${webjarsBootstrapVersion}"
-  runtimeOnly "org.webjars.npm:font-awesome:${webjarsFontawesomeVersion}"
-  runtimeOnly 'com.github.ben-manes.caffeine:caffeine'
-  runtimeOnly 'com.h2database:h2'
-  runtimeOnly 'com.mysql:mysql-connector-j'
-  runtimeOnly 'org.postgresql:postgresql'
-  developmentOnly 'org.springframework.boot:spring-boot-devtools'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-  testImplementation 'org.springframework.boot:spring-boot-docker-compose'
-  testImplementation 'org.testcontainers:junit-jupiter'
-  testImplementation 'org.testcontainers:mysql'
-  checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.41'
-  checkstyle 'com.puppycrawl.tools:checkstyle:10.12.5'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'javax.cache:cache-api'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly "org.webjars.npm:bootstrap:${webjarsBootstrapVersion}"
+    runtimeOnly "org.webjars.npm:font-awesome:${webjarsFontawesomeVersion}"
+    runtimeOnly 'com.github.ben-manes.caffeine:caffeine'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.postgresql:postgresql'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.boot:spring-boot-docker-compose'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+    checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.41'
+    checkstyle 'com.puppycrawl.tools:checkstyle:10.12.5'
 }
 
 tasks.named('test') {
-  useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 checkstyle {
-  configDirectory = project.file('src/checkstyle')
-  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
+    configDirectory = project.file('src/checkstyle')
+    configFile = file('src/checkstyle/nohttp-checkstyle.xml')
 }
 
 checkstyleNohttp {
-  configDirectory = project.file('src/checkstyle')
-  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
+    configDirectory = project.file('src/checkstyle')
+    configFile = file('src/checkstyle/nohttp-checkstyle.xml')
 }
 
 tasks.named("formatMain").configure { dependsOn("checkstyleMain") }
@@ -79,7 +84,7 @@ checkFormatAotTest.enabled = false
 formatAot.enabled = false
 formatAotTest.enabled = false
 
-task customTask(dependsOn: ['build', 'test']) {
+task customTask(dependsOn: ['build', 'test', 'uploadArtifact']) {
     doLast {
         def testResultsPath = "${project.buildDir}/reports/tests/index.html"
         
@@ -92,5 +97,16 @@ task customTask(dependsOn: ['build', 'test']) {
         }
     }
 }
+
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "http://localhost:8081/repository/maven-releases/") {
+            authentication(userName: "admin", password: "admin123")
+        }
+    }
+}
+
 
 project.version = scmVersion.version

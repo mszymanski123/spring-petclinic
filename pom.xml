@@ -34,6 +34,14 @@
     <spring-format.version>0.0.40</spring-format.version>
 
   </properties>
+  
+  <distributionManagement>
+    <repository>
+        <id>central</id>
+        <url>http://localhost:8081/repository/maven-central/</url>
+    </repository>
+</distributionManagement>
+
 
   <dependencies>
     <!-- Spring and Spring Boot dependencies -->
@@ -281,6 +289,14 @@
     <url>https://github.com/mszymanski123/spring-petclinic</url>
   <tag>HEAD</tag>
   </scm>
+
+  <distributionManagement>
+  <repository>
+    <id>nexus</id>
+    <name>Internal Releases</name>
+    <url>http://localhost:8081/repository/maven-releases/</url>
+  </repository>
+  </distributionManagement>
 
 
   <repositories>
